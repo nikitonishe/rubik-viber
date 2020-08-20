@@ -1,6 +1,6 @@
 {
   "name": "rubik-viber",
-  "version": "1.0.4",
+  "version": "1.0.0",
   "description": "Viber Bot Api kubik for the Rubik application system",
   "main": "classes/Viber.js",
   "author": "ns@indotech.ru",
