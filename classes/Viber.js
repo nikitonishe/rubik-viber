@@ -1,7 +1,7 @@
 const { Kubik } = require('rubik-main');
 const fetch = require('node-fetch');
+const set = require('lodash/set');
 const isObject = require('lodash/isObject');
-
 const methods = require('./Viber/methods');
 
 const ViberError = require('../errors/ViberError');
@@ -9,7 +9,7 @@ const ViberError = require('../errors/ViberError');
 const DEFAULT_HOST = 'https://chatapi.viber.com/';
 
 /**
- * Кубик для запросов к API ботов Телеграма
+ * Кубик для запросов к API ботов Viber
  * @class
  * @prop {String} [token] токен для доступа к API
  * @prop {String} [host=DEFAULT_HOST] адрес API Viber
@@ -19,6 +19,8 @@ class Viber extends Kubik {
     super(...arguments);
     this.token = token || null;
     this.host = host || null;
+
+    this.methods.forEach(this.generateMethod, this);
   }
 
   /**
@@ -34,12 +36,12 @@ class Viber extends Kubik {
     this.host = this.host || options.host || DEFAULT_HOST;
   }
 
-  getUrl(name, host) {
+  getUrl(path, host) {
     if (!host) host = this.host;
 
     if (!host) throw new TypeError('host is not defined');
 
-    return `${host}pa/${name}`;
+    return `${host}/${path}`;
   }
 
   /**
@@ -72,22 +74,29 @@ class Viber extends Kubik {
     if (result.status_message !== 'ok') throw new ViberError(result.status_message);
     return result;
   }
+
+  /**
+   * Сгенерировать метод API
+   *
+   * Создает функцию для запроса к API, привязывает ее к текущему контексту
+   * и кладет в семантичное имя внутри this.
+   * В итоге он разбирет путь на части, и раскладывает его по семантичным объектам:
+   * one/two/three -> this.one.two.three(currency, body, id);
+   * @param  {String}  path путь запроса, без ведущего /: one/two/three
+   */
+  generateMethod({ kubikName, apiName }) {
+    const method = (body, token, host) => {
+      return this.request(apiName, body, token, host);
+    };
+    set(this, kubikName, method);
+  }
 }
 
-// Перебираем список имен методов API,
-// создаем методы класса и внедряем их в прототип
-methods.forEach((name) => {
-  // Если мы переопределили поведение метода в классе по какой-то причине,
-  // то не нужно ничего переписывать в прототипе
-  if (Viber.prototype[name]) return;
-  Viber.prototype[name] = async function(body, token, host) {
-    return this.request(name, body, token, host);
-  }
-});
 
 // Чтобы не создавать при каждой инициализации класса,
 // пишем значения имени и зависимостей в протип
 Viber.prototype.dependencies = Object.freeze(['config']);
+Viber.prototype.methods = Object.freeze(methods);
 Viber.prototype.name = 'viber';
 
 module.exports = Viber;
