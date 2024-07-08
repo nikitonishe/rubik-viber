@@ -6,7 +6,7 @@ const methods = require('./Viber/methods');
 
 const ViberError = require('../errors/ViberError');
 
-const DEFAULT_HOST = 'https://chatapi.viber.com/';
+const DEFAULT_HOST = 'https://chatapi.viber.com';
 
 /**
  * Кубик для запросов к API ботов Viber
@@ -41,7 +41,8 @@ class Viber extends Kubik {
 
     if (!host) throw new TypeError('host is not defined');
 
-    return `${host}/${path}`;
+    const url = new URL(path, host);
+    return `${url}`;
   }
 
   /**
