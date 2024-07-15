@@ -1,4 +1,4 @@
 module.exports = {
-  host: 'https://chatapi.viber.com/',
+  host: 'https://chatapi.viber.com',
   token: null
 };
