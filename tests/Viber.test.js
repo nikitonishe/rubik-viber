@@ -30,7 +30,7 @@ describe('Кубик для работы с Viber', () => {
   test('Делает тестовый запрос к viber (не забудьте добавить токен в настройки)', async () => {
     const { app, kubik } = get();
     await app.up();
-    const response = await kubik.pa.getAccountInfo({});
+    const response = await kubik.pa.getAccountInfo();
     expect(response.status_message).toBe('ok');
     await app.down();
   });
@@ -38,7 +38,7 @@ describe('Кубик для работы с Viber', () => {
   test('Тестовый запрос к viber с невалидным токеном завершается ошибкой', async () => {
     const { app, kubik } = get();
     await app.up();
-    expect(kubik.pa.getAccountInfo({}, '12345')).rejects.toThrow();
+    expect(kubik.pa.getAccountInfo(undefined, '12345')).rejects.toThrow();
     await app.down();
   });
 });

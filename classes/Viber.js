@@ -1,4 +1,5 @@
 const { Kubik } = require('rubik-main');
+const parseUrl = require('url').parse;
 const fetch = require('node-fetch');
 const set = require('lodash/set');
 const isObject = require('lodash/isObject');
@@ -69,7 +70,19 @@ class Viber extends Kubik {
       headers['Content-Type'] = 'application/json'
     }
 
-    const request = await fetch(url, { method, body, headers });
+    let request;
+    const config = this.config.get(this.name);
+    if (config.proxy?.url) {
+      const parsedUrl = parseUrl(url);
+
+      headers['X-Target-Host'] = headers.Host || parsedUrl.host;
+      headers['X-Target'] = `${parsedUrl.protocol}//${parsedUrl.host}${parsedUrl.pathname}`;
+
+      request = await fetch(config.proxy.url, { method: 'GET', headers });
+    } else {
+      request = await fetch(url, { method, body, headers });
+    }
+
     const result = await request.json();
 
     if (result.status_message !== 'ok') throw new ViberError(result.status_message);
