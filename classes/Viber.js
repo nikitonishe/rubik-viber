@@ -78,7 +78,7 @@ class Viber extends Kubik {
       headers['X-Target-Host'] = headers.Host || parsedUrl.host;
       headers['X-Target'] = `${parsedUrl.protocol}//${parsedUrl.host}${parsedUrl.pathname}`;
 
-      request = await fetch(config.proxy.url, { method: 'GET', headers });
+      request = await fetch(config.proxy.url, { method, body, headers });
     } else {
       request = await fetch(url, { method, body, headers });
     }
